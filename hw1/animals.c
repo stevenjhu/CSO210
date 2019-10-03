@@ -9,6 +9,8 @@
 #define FALSE 0
 
 NODE *root = NULL;
+int MAXLENGTH = 200;
+char in[201]; //string
 
 // Returns true if user types "yes" or "y" (upper or lower case)
 // and returns false if user types "no" or "n". Keeps
@@ -19,19 +21,23 @@ BOOL yes_response()
 
   //Fill in the code 
   //Hint: You might consider using the C library function strcasecmp()
-  char s[3];
-  char *res = fgets(s,3,stdin);
+  BOOL ans = FALSE;
+  fgets(in,MAXLENGTH,stdin);
+  in[strcspn(in,"\n")]='\0';  
 
-  if(!strcmp(&res,"yes")||!strcmp(&res,"y")){
-      return TRUE;
-  }else if(!strcmp(&res,"no")||!strcmp(&res,"n")){
-    return FALSE;
+
+  if(!strcasecmp(in,"yes")||!strcasecmp(in,"y")){  //
+      return ans = TRUE;
+  }else if(!strcasecmp(in,"no")||!strcasecmp(in,"n")){
+      return ans = FALSE;
   }else{
-    printf("Invalid input. Try again.");
+    printf("Invalid input. Try again.\n");
     yes_response();
   }
-
+  return ans;
 }
+
+
 
 // This procedure creates a new NODE and copies
 // the contents of string s into the 
@@ -46,7 +52,7 @@ NODE *new_node(char *s)
     strcpy(n->question_or_animal, s);
     n->left = NULL;
     n->right = NULL;
-    return *n;
+    return n;
 }
 
 // This is the procedure that performs the guessing.
@@ -63,11 +69,11 @@ void guess_animal()
 
   //FILL IN CODE HERE
   if(root == NULL){
-      printf("%s","Name an animal: ");
-      char s[10];
-      char *animal = fgets(s,10,stdin);
-      NODE *aNode = (NODE *)malloc(sizeof(NODE));
-      root= &aNode;
+      printf("%s","Name an animal > \n");
+      fgets(in,MAXLENGTH,stdin);
+      in[strcspn(in,"\n")]='\0'; 
+      NODE *aNode = new_node(in);
+      root= aNode;
   }
     /*
       Otherwise (i.e. if the root is not NULL)
@@ -82,10 +88,14 @@ void guess_animal()
     */
 
   //FILL IN CODE HERE
-  else if(root != NULL){
-      NODE * temp = &root;
-      while(temp->left != NULL && temp->right != NULL){
-
+  else if(root != NULL&&(root->left != NULL && root->right != NULL)){
+      while(root->left != NULL&&root->right != NULL){
+        printf("%s >> ",root->question_or_animal);
+        if(yes_response()){ //if yes
+            root = root->left;
+        }else{//if no
+            root = root->right;
+        }
       }
   }
 
@@ -109,7 +119,39 @@ void guess_animal()
     */
 
   //FILL IN CODE HERE
+  if(root!=NULL&&(root->left == NULL && root->right == NULL)){
+    //
+      printf("Is it %s?(yes/no) >\n",root->question_or_animal);
+      if(yes_response()){
+          return;
+      }else{
+        printf("What is the animal you are thinking about? > \n" );
+        fgets(in,MAXLENGTH,stdin);
+        in[strcspn(in,"\n")]='\0'; 
+        char *animal=malloc(sizeof(in));
+        strcpy(animal,in);
 
+        printf("What is a short yes/no question that distinguishes %s and %s?\n", animal, root->question_or_animal);
+        fgets(in,MAXLENGTH,stdin);
+        in[strcspn(in,"\n")]='\0';
+        char *question=malloc(sizeof(in));
+        strcpy(question,in);
+
+        printf("What is the yes/no answer for %s? > \n", animal);
+        fgets(in,MAXLENGTH,stdin);
+        in[strcspn(in,"\n")]='\0';
+        char *answer=malloc(sizeof(in));
+        strcpy(answer,in);
+
+        NODE *new_animal = new_node(animal);
+        NODE *guessed_animal = new_node(question);
+        root->left = new_animal;
+        root->right = guessed_animal;
+        strcpy(root->question_or_animal,question);
+
+      }
+    
+  }
 }
 
 
@@ -160,7 +202,7 @@ int main()
   datafile = fopen("data.dat", "w");
 
   //insert comment
-  //Write to the tree using 
+  //Write to the tree using user-given info
   write_tree(root, datafile);
 
   //close the data.dat file
