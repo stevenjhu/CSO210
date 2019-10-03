@@ -12,6 +12,7 @@ NODE *root = NULL;
 NODE *oldRoot = NULL;
 int MAXLENGTH = 200;
 char in[201]; //string
+BOOL first = TRUE;
 
 // Returns true if user types "yes" or "y" (upper or lower case)
 // and returns false if user types "no" or "n". Keeps
@@ -63,6 +64,10 @@ NODE *new_node(char *s)
 
 void guess_animal()
 {
+  if(first == TRUE){
+      oldRoot = root;
+      first = FALSE;
+  }
   // If the root is NULL, then there are no animals in 
   // the tree. Prompt the player for the name of an 
   // animal, create a node for that animal, and make
@@ -125,9 +130,7 @@ void guess_animal()
     
       printf("Is it %s?(yes/no) >\n",root->question_or_animal);
       if(yes_response()){
-          root = oldRoot;
-          printf("testing: %s\n", root->question_or_animal);
-          return;
+          
       }else{
         printf("What is the animal you are thinking about? > \n" );
         fgets(in,MAXLENGTH,stdin);
@@ -154,7 +157,7 @@ void guess_animal()
         strcpy(root->question_or_animal,question);
 
       }
-    
+    root = oldRoot;
   }
 }
 
@@ -193,8 +196,6 @@ int main()
   fclose(datafile);
 
   printf("Welcome to the animal guessing game (like 20 questions).\n");
-  oldRoot = root;
-  printf("testing: %s\n", oldRoot->question_or_animal);
   do { 
     printf("\nThink of an animal...\n");
     guess_animal();  //insert comment here
