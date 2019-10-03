@@ -9,6 +9,7 @@
 #define FALSE 0
 
 NODE *root = NULL;
+NODE *oldRoot = NULL;
 int MAXLENGTH = 200;
 char in[201]; //string
 
@@ -74,6 +75,7 @@ void guess_animal()
       in[strcspn(in,"\n")]='\0'; 
       NODE *aNode = new_node(in);
       root= aNode;
+      oldRoot = root;
   }
     /*
       Otherwise (i.e. if the root is not NULL)
@@ -120,9 +122,11 @@ void guess_animal()
 
   //FILL IN CODE HERE
   if(root!=NULL&&(root->left == NULL && root->right == NULL)){
-    //
+    
       printf("Is it %s?(yes/no) >\n",root->question_or_animal);
       if(yes_response()){
+          root = oldRoot;
+          printf("testing: %s\n", root->question_or_animal);
           return;
       }else{
         printf("What is the animal you are thinking about? > \n" );
@@ -144,7 +148,7 @@ void guess_animal()
         strcpy(answer,in);
 
         NODE *new_animal = new_node(animal);
-        NODE *guessed_animal = new_node(question);
+        NODE *guessed_animal = new_node(root->question_or_animal);
         root->left = new_animal;
         root->right = guessed_animal;
         strcpy(root->question_or_animal,question);
@@ -189,6 +193,8 @@ int main()
   fclose(datafile);
 
   printf("Welcome to the animal guessing game (like 20 questions).\n");
+  oldRoot = root;
+  printf("testing: %s\n", oldRoot->question_or_animal);
   do { 
     printf("\nThink of an animal...\n");
     guess_animal();  //insert comment here
