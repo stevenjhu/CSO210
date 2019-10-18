@@ -6,6 +6,13 @@
 // This function prints the individual bits of a
 // 32-bit quantity. Do not alter this function
 
+#include <stdio.h>
+
+#include "add_array.h"
+
+// This function prints the individual bits of a
+// 32-bit quantity. Do not alter this function
+
 void print_32_bits(void *p)
 {
   unsigned int x = *((unsigned int *) p);
@@ -32,6 +39,13 @@ unsigned int reverse_bits(unsigned int x)
   // a bit of the result.
 
   // FILL IN CODE HERE.
+	unsigned int reverse = 0;
+	unsigned int mask = 0x1;
+	for(int i = 0; i < 16; i++) {
+		unsigned int bit = ((x>>i)&0x1);
+    	reverse |= ((bit & 0x1) <<(31-i));
+  	}
+  	return reverse;
 }
 
 
@@ -43,13 +57,13 @@ long int multiply(int x, int y)
   // Need variables to store a mask and a result. These should
   // be 64-bit unsigned numbers.
 
-  unsigned long int mask = /* FILL THIS IN */;
-  unsigned long int prod = /* FILL THIS IN */;
+  unsigned long int mask = 0x1;
+  unsigned long int prod = 0x0;
 
   // Need to sign-extend x and y to 64 bits
 
-  long int lx = /* FILL THIS IN */;
-  long int ly = /* FILL THIS IN */
+  long int lx = x;
+  long int ly = y;
 
   // In a loop that uses a mask to iterate over the bits
   // of ly from right (bit 0) to left (bit 63):
@@ -57,9 +71,15 @@ long int multiply(int x, int y)
   //   -- shift lx to the left by 1 (every time)
 
     // FILL THIS IN
+  for(int i =0;i<64;i++){
+  	if((ly>>i)&0x1){
+  		prod+=lx;
+  	}
+  	lx<<=1;
+  }
 
     // Return the product, but as a signed long integer.
-    return /* FILL THIS IN */;
+    return (long int)prod;
 }
 
 
@@ -70,15 +90,15 @@ long int multiply(int x, int y)
 
 // select bit 31, shifted all the way to the right.
 
-#define SIGN(x) (/* FILL THIS IN */)
+#define SIGN(x) ((*((unsigned int *) &x))>>31)
 
 // select bits 23 through 30, shifted right by 23 bits
 
-#define EXP(x) (/* FILL THIS IN */)
+#define EXP(x) (((*((unsigned int *) &x))>>23)&0xFF)
 
 // select bits 0 through 22 (the rightmost 23 bits)
 
-#define FRAC(x) (/* FILL THIS IN */)
+#define FRAC(x) ((*((unsigned int *) &x)) & 0x7FFFFF)
 
 
 // This function performs a floating point addition without
@@ -98,25 +118,31 @@ float float_add(float f, float g)
   // and g, using the SIGN, EXP, and FRAC macros
   // above.
 
-  unsigned int sign_f = /* FILL THIS IN */;
-  unsigned int sign_g = /* FILL THIS IN */;
+  unsigned int sign_f = SIGN(f);
+  unsigned int sign_g = SIGN(g);
 
   
-  unsigned int exp_f =  /* FILL THIS IN */;
-  unsigned int exp_g =  /* FILL THIS IN */;
+  unsigned int exp_f =  EXP(f);
+  unsigned int exp_g =  EXP(g);
 
-  unsigned int frac_f = /* FILL THIS IN */;
-  unsigned int frac_g =  /* FILL THIS IN */;
+  unsigned int frac_f = FRAC(f);
+  unsigned int frac_g = FRAC(g);
 
   // Handle the special case where f is zero (i.e.
   // both the exp_f and frac_f are zero), 
   // in which case the value of g should be returned immediately.
   
   // FILL THIS IN
-  
+  if (f == 0){
+  	return g;
+  }
+
   // Do the same for g (i.e. check if g is zero).
   
   // FILL THIS IN
+  if (g == 0){
+  	return f;
+  }
 
   // In order to perform the multiplication, the implicit
   // leading 1 in the mantissa for f and g must be made
@@ -124,8 +150,10 @@ float float_add(float f, float g)
   // a 1 in the bit 23 position, followed by the bits of frac_f.
   // The same is true for the mantissa of g.
 
-  unsigned int mantissa_f = /* FILL THIS IN */;
-  unsigned int mantissa_g = /* FILL THIS IN */;
+  unsigned int mantissa_f = frac_f;
+  mantissa_f = mantissa_f | ((1 & 0x1) << 23);
+  unsigned int mantissa_g = frac_g;
+  mantissa_g = mantissa_g | ((1 & 0x1) << 23);
 
   // Before performing any addition, the two numbers must have the
   // same exponent. Take the mantissa of the number with the smaller
@@ -135,7 +163,13 @@ float float_add(float f, float g)
   // the right by (exp_g - exp_f) bits and set exp_f to exp_g.
 
     // FILL THIS IN
-
+  if (exp_f<exp_g){
+  	mantissa_f >>= (exp_g-exp_f);
+  	exp_f = exp_g;
+  }else if (exp_g<exp_f){
+  	mantissa_g >>= (exp_f-exp_g);
+  	exp_g = exp_f;
+  }
   // Now it's time to compute the exponent, sign, and
   // mantissa of the result. 
 
@@ -153,7 +187,7 @@ float float_add(float f, float g)
 
   // This holds the exponent of the result.
   
-  unsigned int exp_res = /* FILL THIS IN */;
+  unsigned int exp_res = exp_f;
 
   // If  sign_f and sign_g are the same, i.e. they are both
   // 0 (positive) or 1 (negative), then:
@@ -169,7 +203,12 @@ float float_add(float f, float g)
   if (sign_f == sign_g) {
 
     /* FILL THIS IN */
-
+  	sign_res = sign_f;
+  	mantissa_res = mantissa_f + mantissa_g;
+  	if((mantissa_res>>24)&0x1){
+  		mantissa_res >>= 1;
+  		exp_res++;
+  	}
   }
   else {
 
@@ -193,6 +232,8 @@ float float_add(float f, float g)
     //       bit 23 position.
     
     // FILL THIS IN
+    sign_res = (mantissa_f>mantissa_g)? sign_f : sign_g;
+    mantissa_res = (mantissa_f>mantissa_g)? (mantissa_f-mantissa_g) : (mantissa_g-mantissa_f);
 
   }
   
@@ -203,12 +244,12 @@ float float_add(float f, float g)
   //  -- the lowest 23 bits of the mantissa (i.e. removing the 1 in bit 23 position,
   //     since it is implicit)
 
-  unsigned int result  = /* FILL THIS IN */;
+  unsigned int result  =  result | ((sign_res&0x1)<<31) | ((exp_res&0xFF)<<23) | ((mantissa_res&0x7FFFFF));
 
   // Return the computed result (which is an unsigned int) as a floating point number.
   // Be sure that the compiler does not perform a conversion (see the hint sheet).
   
-  return /* FILL THIS IN */;
+  return *((float *) &result);
 }
 
 
@@ -236,21 +277,23 @@ int main()
 
   // UNCOMMENT THESE AS YOU IMPLEMENT THE REQUIRED FUNCTIONS
   
-  // printf("Enter two integers (to multiply) > ");
-  // scanf("%d %d", &x, &y);
+  printf("Enter two integers (to multiply) > ");
+  scanf("%d %d", &x, &y);
 
-  // printf("%d * %d = %ld\n", x, y, multiply(x,y));
+  printf("%d * %d = %ld\n", x, y, multiply(x,y));
 
-  // float f, g;
+  float f, g;
 
-  // printf("Enter two floating point numbers (to add) > ");
-  // scanf("%f", &f);
-  // scanf("%f", &g);
+  printf("Enter two floating point numbers (to add) > ");
+  scanf("%f", &f);
+  scanf("%f", &g);
 
-  // printf("Computed %f + %f = %f\n", f, g, float_add(f,g));
+  printf("Computed %f + %f = %f\n", f, g, float_add(f,g));
 
-  // int a[5] = {1,2,3,4,5};
-  // printf("Result of add_array(a,5) is %d\n", add_array(a,5));
+  int a[5] = {1,2,3,4,5};
+  printf("Result of add_array(a,5) is %d\n", add_array(a,5));
 
 }
+
+
 

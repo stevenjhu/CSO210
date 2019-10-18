@@ -29,19 +29,19 @@ _add_array:
 	pushq	%rbp           # LEAVE THIS ALONE
 	movq	%rsp, %rbp     # LEAVE THIS ALONE
 
-	/* FILL THIS IN */  # sum = 0
-	/* FILL THIS IN */  # i = 0 (use a 64-bit register, see hint above)
+	movl	$0, %eax  # sum = 0
+	movq	$0, %rcx  # i = 0 (use a 64-bit register, see hint above)
 
-/* THIS IS THE TOP OF THE LOOP, NEED A LABEL */
+lp:
 	
-	/* FILL THIS IN */  # compare i to size
-	/* FILL THIS IN */  #   if i is not less than size, jump out of loop
+	cmp		%rcx, (%esi)  # compare i to size
+	jnl		olp  #   if i is not less than size, jump out of loop
 
-	/* FILL THIS IN */  # sum += a[i]
-	/* FILL THIS IN */  # i++
-	/* FILL THIS IN */  # jump to top of loop
+	add		(%rdi,%rcx,4),%eax  # sum += a[i]
+	incq	%rcx  # i++
+	jmp 	lp  # jump to top of loop
 
-/* THIS IS OUTSIDE THE LOOP, NEED A LABEL */
+olp:
 
 	/* Make sure result is in %eax */
 
