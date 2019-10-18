@@ -34,7 +34,7 @@ _add_array:
 
 lp:
 	
-	cmp		%rcx, (%esi)  # compare i to size
+	cmpl	%esi, %ecx   # compare i to size
 	jnl		olp  #   if i is not less than size, jump out of loop
 
 	add		(%rdi,%rcx,4),%eax  # sum += a[i]

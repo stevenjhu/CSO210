@@ -151,9 +151,9 @@ float float_add(float f, float g)
   // The same is true for the mantissa of g.
 
   unsigned int mantissa_f = frac_f;
-  mantissa_f = mantissa_f | ((1 & 0x1) << 23);
+  mantissa_f = mantissa_f | 1 << 23;
   unsigned int mantissa_g = frac_g;
-  mantissa_g = mantissa_g | ((1 & 0x1) << 23);
+  mantissa_g = mantissa_g | 1 << 23;
 
   // Before performing any addition, the two numbers must have the
   // same exponent. Take the mantissa of the number with the smaller
@@ -234,7 +234,14 @@ float float_add(float f, float g)
     // FILL THIS IN
     sign_res = (mantissa_f>mantissa_g)? sign_f : sign_g;
     mantissa_res = (mantissa_f>mantissa_g)? (mantissa_f-mantissa_g) : (mantissa_g-mantissa_f);
-
+    if (mantissa_res == 0){
+    	return 0.0;
+    }else{
+    	while(!((mantissa_res>>23)&0x1)){
+    		mantissa_res <<= 1;
+    		exp_res--;
+    	}
+    }
   }
   
   // Now construct the result from OR'ing (using bitwise-or, | ) together the
@@ -244,7 +251,10 @@ float float_add(float f, float g)
   //  -- the lowest 23 bits of the mantissa (i.e. removing the 1 in bit 23 position,
   //     since it is implicit)
 
-  unsigned int result  =  result | ((sign_res&0x1)<<31) | ((exp_res&0xFF)<<23) | ((mantissa_res&0x7FFFFF));
+  unsigned int result  =  0;
+  result |= ((sign_res)<<31);
+  result |= ((exp_res&0xFF)<<23);
+  result |= ((mantissa_res&0x7FFFFF));
 
   // Return the computed result (which is an unsigned int) as a floating point number.
   // Be sure that the compiler does not perform a conversion (see the hint sheet).
