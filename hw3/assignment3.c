@@ -97,5 +97,8 @@ int main(int argc, char *argv[])
     EMPLOYEE *p = &sorted_employees[i];
     fprintf(output, "%s, %s, %ld, %ld\n", p->last, p->first, p->id, p->salary);
   }
-    
+  
+  void debug_print(){
+     printf("In debug_print\n");
+	}
 }
