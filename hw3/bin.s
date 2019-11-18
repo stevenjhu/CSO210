@@ -23,14 +23,14 @@ _insert_node:
 	
 	LOOP:					#while
 							# new_n in %rdi, p in %rdx
-	cmpq 0(%rdi),0(%rdx)	#if id = id 
+	cmpq %rdi,%rdx			#if id = id 
 	je BREAK
 	
 	pushq %rdi
 	pushq %rdx
 	leaq 116(%rdi),%rdi
 	leaq 116(%rdi),%rdx
-	call _strcmp %rdi,%rdx
+	call _strcmp
 	movl %eax,%ecx			#Use %ecx for: int res
 	popq %rdx
 	popq %rdi
@@ -43,7 +43,7 @@ _insert_node:
 	pushq %rdx
 	leaq 16(%rdi),%rdi
 	leaq 16(%rdi),%rdx
-	call _strcmp %rdi,%rdx
+	call _strcmp
 	movl %eax,%ecx
 	popq %rdx
 	popq %rdi
@@ -166,77 +166,74 @@ _insert_node:
 # // }
 
 
-# # // Uncomment these three lines:
-# .section	__TEXT,__text,regular,pure_instructions
-# .globl	_remove_smallest
-# .p2align	4, 0x90
+# // Uncomment these three lines:
+.section	__TEXT,__text,regular,pure_instructions
+.globl	_remove_smallest
+.p2align	4, 0x90
 	
 
 # # // WRITE THE FUNCTION remove_smallest THAT OPERATES THE SAME AS
 # # // THE COMMENTED-OUT C CODE BELOW. 
 
-# _remove_smallest:
-# 	pushq %rbp
-# 	movq %rbp,%rsp
-# 	addq $,%rsp
+_remove_smallest:
+	pushq %rbp
+	movq %rbp,%rsp
+	addq $,%rsp
 	
 	
 	
-# 	subq $,%rsp
-# 	popq %rbp
-# 	ret
+	subq $,%rsp
+	popq %rbp
+	ret
 
-# # // This function removes the smallest node from the binary
-# # // search tree. That is, it removes the node representing
-# # // the employee whose name comes before (alphabetically) the
-# # // other employees in the tree. The function returns
-# # // a pointer to the node that has been returned.
+# // This function removes the smallest node from the binary
+# // search tree. That is, it removes the node representing
+# // the employee whose name comes before (alphabetically) the
+# // other employees in the tree. The function returns
+# // a pointer to the node that has been returned.
 
-# // NODE *remove_smallest()
-# // {
+// NODE *remove_smallest()
+// {
 
-# # //   // If the tree is already empty, return NULL.
+# //   // If the tree is already empty, return NULL.
   
-# //   if (root == NULL) {
-# //     return NULL;
-# //   }
+//   if (root == NULL) {
+//     return NULL;
+//   }
 
-# # //   // If there is no left child of the root, then the smallest
-# # //   // node is the root node. Set root to point to its right child
-# # //   // and return the old root node.
+# //   // If there is no left child of the root, then the smallest
+# //   // node is the root node. Set root to point to its right child
+# //   // and return the old root node.
 
-# //   if (root->left == NULL) {
-# //     NODE *p = root;
-# //     root = root->right;
-# //     return p;
-# //   }
+//   if (root->left == NULL) {
+//     NODE *p = root;
+//     root = root->right;
+//     return p;
+//   }
 
-# # //   // At this point, we know that root has a left child,
-# # //   // i.e. that root->left is not NULL. We'll need to
-# # //   // keep track of the parent of the node that we're
-# # //   // eventually removing, so we use a "parent" pointer
-# # //   // for that purpose.
+# //   // At this point, we know that root has a left child,
+# //   // i.e. that root->left is not NULL. We'll need to
+# //   // keep track of the parent of the node that we're
+# //   // eventually removing, so we use a "parent" pointer
+# //   // for that purpose.
   
-# //   NODE *parent = root;
+//   NODE *parent = root;
 
-# # //   // Traverse down the left side of the tree until we
-# # //   // hit a node that doesn't have a left child.  Again,
-# # //   // our "parent" pointer points to the parent of
-# # //   // such a node.
+# //   // Traverse down the left side of the tree until we
+# //   // hit a node that doesn't have a left child.  Again,
+# //   // our "parent" pointer points to the parent of
+# //   // such a node.
   
-# //   while (parent->left->left != NULL) {
-# //     parent = parent->left;
-# //   }
+//   while (parent->left->left != NULL) {
+//     parent = parent->left;
+//   }
 
-# # //   // At this point, parent->left points to the node with
-# # //   // the smallest value (alphabetically).  So, we are
-# # //   // going to set parent->left to parent->left->right,
-# # //   // and return the old parent->left.
+# //   // At this point, parent->left points to the node with
+# //   // the smallest value (alphabetically).  So, we are
+# //   // going to set parent->left to parent->left->right,
+# //   // and return the old parent->left.
     
-# //   NODE *p = parent->left;
-# //   parent->left = parent->left->right;
-# //   return p;
-# // }
-
-
-
+//   NODE *p = parent->left;
+//   parent->left = parent->left->right;
+//   return p;
+// }
