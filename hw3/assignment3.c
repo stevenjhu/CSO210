@@ -98,7 +98,8 @@ int main(int argc, char *argv[])
     fprintf(output, "%s, %s, %ld, %ld\n", p->last, p->first, p->id, p->salary);
   }
   
-  void debug_print(){
+  
+}
+void debug_print(){
      printf("In debug_print\n");
-	}
 }

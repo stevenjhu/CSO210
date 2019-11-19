@@ -17,7 +17,7 @@ _insert_node:
 	addq $4,%rsp
 	
 	cmpq $0,_root(%rip)
-	je Finished
+	je BREAK
 	
 	movq _root(%rip),%rdx
 	
@@ -172,17 +172,62 @@ _insert_node:
 .p2align	4, 0x90
 	
 
-# # // WRITE THE FUNCTION remove_smallest THAT OPERATES THE SAME AS
-# # // THE COMMENTED-OUT C CODE BELOW. 
+# // WRITE THE FUNCTION remove_smallest THAT OPERATES THE SAME AS
+# // THE COMMENTED-OUT C CODE BELOW. 
 
 _remove_smallest:
 	pushq %rbp
+	movq %rsp,%rbp
+	addq $464,%rsp
+	
+	cmpq $0,_root(%rip)
+	je RETURN_NULL
+
+	leaq _root(%rip),%rcx
+	leaq 216(%rcx),%rcx			#%rcx is root->left
+	cmpq $0,%rcx
+	jne PARENT_INIT
+	movq _root(%rip),%rdi		#%rdi is NODE *p
+	pushq %rcx
+	pushq %rdx
+	leaq _root(%rip),%rcx
+	leaq 224(%rcx),%rdx
+	movq %rdx,_root(%rip)
+	popq %rdx
+	popq %rcx
+
+	movq %rdi,%rax				#return p
+	jmp RETURN
+
+	PARENT_INIT:				
+	movq _root(%rip),%rdi		#%rdi is NODE *parent
+
+	WHILE:
+	pushq %rdx					#overwrite for temp
+	leaq 216(%rdi),%rdx
+	leaq 216(%rdx),%rsi
+	cmpq $0,%rsi
+	je ENDWHILE
+	movq 216(%rdi),%rdi
+	jmp WHILE
+	ENDWHILE:
+
+	movq 216(%rdi),%rcx			#%rcx is NODE *p
+	leaq 216(%rdi),%rdx
+	pushq %rax
+	leaq 224(%rdx),%rax
+	movq %rax,216(%rdi)
+	popq %rax
+	popq %rdx					#restore temp reg
+	movq %rcx,%rax
+	jmp RETURN
+
+	RETURN_NULL:
+	movq $0,%rax
+
+	RETURN:
+	subq $464,%rsp
 	movq %rbp,%rsp
-	addq $,%rsp
-	
-	
-	
-	subq $,%rsp
 	popq %rbp
 	ret
 
@@ -192,48 +237,48 @@ _remove_smallest:
 # // other employees in the tree. The function returns
 # // a pointer to the node that has been returned.
 
-// NODE *remove_smallest()
-// {
+# // NODE *remove_smallest()
+# // {
 
-# //   // If the tree is already empty, return NULL.
+# # //   // If the tree is already empty, return NULL.
   
-//   if (root == NULL) {
-//     return NULL;
-//   }
+# //   if (root == NULL) {
+# //     return NULL;
+# //   }
 
-# //   // If there is no left child of the root, then the smallest
-# //   // node is the root node. Set root to point to its right child
-# //   // and return the old root node.
+# # //   // If there is no left child of the root, then the smallest
+# # //   // node is the root node. Set root to point to its right child
+# # //   // and return the old root node.
 
-//   if (root->left == NULL) {
-//     NODE *p = root;
-//     root = root->right;
-//     return p;
-//   }
+# //   if (root->left == NULL) {
+# //     NODE *p = root;
+# //     root = root->right;
+# //     return p;
+# //   }
 
-# //   // At this point, we know that root has a left child,
-# //   // i.e. that root->left is not NULL. We'll need to
-# //   // keep track of the parent of the node that we're
-# //   // eventually removing, so we use a "parent" pointer
-# //   // for that purpose.
+# # //   // At this point, we know that root has a left child,
+# # //   // i.e. that root->left is not NULL. We'll need to
+# # //   // keep track of the parent of the node that we're
+# # //   // eventually removing, so we use a "parent" pointer
+# # //   // for that purpose.
   
-//   NODE *parent = root;
+# //   NODE *parent = root;
 
-# //   // Traverse down the left side of the tree until we
-# //   // hit a node that doesn't have a left child.  Again,
-# //   // our "parent" pointer points to the parent of
-# //   // such a node.
+# # //   // Traverse down the left side of the tree until we
+# # //   // hit a node that doesn't have a left child.  Again,
+# # //   // our "parent" pointer points to the parent of
+# # //   // such a node.
   
-//   while (parent->left->left != NULL) {
-//     parent = parent->left;
-//   }
+# //   while (parent->left->left != NULL) {
+# //     parent = parent->left;
+# //   }
 
-# //   // At this point, parent->left points to the node with
-# //   // the smallest value (alphabetically).  So, we are
-# //   // going to set parent->left to parent->left->right,
-# //   // and return the old parent->left.
+# # //   // At this point, parent->left points to the node with
+# # //   // the smallest value (alphabetically).  So, we are
+# # //   // going to set parent->left to parent->left->right,
+# # //   // and return the old parent->left.
     
-//   NODE *p = parent->left;
-//   parent->left = parent->left->right;
-//   return p;
-// }
+# //   NODE *p = parent->left;
+# //   parent->left = parent->left->right;
+# //   return p;
+# // }
