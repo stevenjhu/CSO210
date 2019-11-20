@@ -118,11 +118,11 @@ NODE *new_node(EMPLOYEE employee)
 // }
 
 
-// This function removes the smallest node from the binary
-// search tree. That is, it removes the node representing
-// the employee whose name comes before (alphabetically) the
-// other employees in the tree. The function returns
-// a pointer to the node that has been returned.
+// // This function removes the smallest node from the binary
+// // search tree. That is, it removes the node representing
+// // the employee whose name comes before (alphabetically) the
+// // other employees in the tree. The function returns
+// // a pointer to the node that has been returned.
 
 // NODE *remove_smallest()
 // {

@@ -7,50 +7,49 @@
  .p2align	4, 0x90
 
 
-# // WRITE THE FUNCTION insert_node THAT OPERATES THE SAME AS
-# // THE COMMENTED-OUT C CODE BELOW. 
+# # // WRITE THE FUNCTION insert_node THAT OPERATES THE SAME AS
+# # // THE COMMENTED-OUT C CODE BELOW. 
 
 _insert_node:
 
 	pushq %rbp
 	movq %rsp,%rbp
-	addq $4,%rsp
 	
 	cmpq $0,_root(%rip)
-	je BREAK
+	jne NEXT
+	movq %rdi,_root(%rip)	#*new_n in %rdi
+	jmp BREAK
 	
-	movq _root(%rip),%rdx
+	NEXT:
+	movq _root(%rip),%rdx	#p in %rdx
 	
 	LOOP:					#while
-							# new_n in %rdi, p in %rdx
-	cmpq %rdi,%rdx			#if id = id 
+	movq 0(%rdx),%rsi
+	cmpq 0(%rdi),%rsi		#if new_n.id = p.id 
 	je BREAK
 	
+
 	pushq %rdi
 	pushq %rdx
-	leaq 116(%rdi),%rdi
-	leaq 116(%rdi),%rdx
+	leaq 116(%rdi),%rdi		#put new_n.last in first parameter
+	leaq 116(%rdx),%rsi 	#put p.last in second parameter
 	call _strcmp
-	movl %eax,%ecx			#Use %ecx for: int res
 	popq %rdx
 	popq %rdi
-	
-	
-	cmpl $0,%ecx			#if res=0
+
+	cmpl $0,%eax			#if res=0
 	jne RES_NOT_EQUAL
 	
 	pushq %rdi
 	pushq %rdx
 	leaq 16(%rdi),%rdi
-	leaq 16(%rdi),%rdx
+	leaq 16(%rdx),%rsi
 	call _strcmp
-	movl %eax,%ecx
 	popq %rdx
 	popq %rdi
 
-
 	RES_NOT_EQUAL:
-	cmpl $0,%ecx			#if res<0
+	cmpl $0,%eax			#if res<0
     jge ELSE
 	cmpq $0,216(%rdx)		#if p_left=NULL
 	jne LEFT_NOT_NULL
@@ -71,8 +70,7 @@ _insert_node:
 	movq 224(%rdx),%rdx
 	jmp LOOP
 	
-	BREAK: #exit while loop
-	subq $4,%rsp
+	BREAK: 					#exit while loop and end of function
 	movq %rbp,%rsp
 	popq %rbp
 	ret
@@ -178,55 +176,48 @@ _insert_node:
 _remove_smallest:
 	pushq %rbp
 	movq %rsp,%rbp
-	addq $464,%rsp
 	
 	cmpq $0,_root(%rip)
 	je RETURN_NULL
 
-	leaq _root(%rip),%rcx
-	leaq 216(%rcx),%rcx			#%rcx is root->left
-	cmpq $0,%rcx
+	movq _root(%rip),%rcx		#%rcx is root
+	cmpq $0,216(%rcx)
 	jne PARENT_INIT
-	movq _root(%rip),%rdi		#%rdi is NODE *p
+	movq _root(%rip),%rax		#return reg is NODE *p
+
 	pushq %rcx
-	pushq %rdx
-	leaq _root(%rip),%rcx
-	leaq 224(%rcx),%rdx
-	movq %rdx,_root(%rip)
-	popq %rdx
+	movq _root(%rip),%rcx		#%rcx is root
+	movq 224(%rcx),%rcx 		#%rcx is now root.right
+	movq %rcx,_root(%rip)		#root=root.right
 	popq %rcx
 
-	movq %rdi,%rax				#return p
 	jmp RETURN
 
 	PARENT_INIT:				
 	movq _root(%rip),%rdi		#%rdi is NODE *parent
 
+	#Caused Segamentation fault
 	WHILE:
-	pushq %rdx					#overwrite for temp
-	leaq 216(%rdi),%rdx
-	leaq 216(%rdx),%rsi
+	movq 216(%rdi),%rdx			#CAUSED SEGMENTATION FAULT
+	movq 216(%rdx),%rsi 		#CAUSED SEGMENTATION FAULT
 	cmpq $0,%rsi
 	je ENDWHILE
-	movq 216(%rdi),%rdi
+	movq %rdx,%rdi		#CAUSED SEGMENTATION FAULT
 	jmp WHILE
 	ENDWHILE:
 
-	movq 216(%rdi),%rcx			#%rcx is NODE *p
-	leaq 216(%rdi),%rdx
-	pushq %rax
-	leaq 224(%rdx),%rax
-	movq %rax,216(%rdi)
-	popq %rax
-	popq %rdx					#restore temp reg
-	movq %rcx,%rax
+	movq 216(%rdi),%rax			#return reg is NODE *p
+	movq 216(%rdi),%rdx
+
+	movq 224(%rdx),%rdx
+	movq %rdx,216(%rdi)			#parent.left = parent.left.right
+
 	jmp RETURN
 
 	RETURN_NULL:
 	movq $0,%rax
 
 	RETURN:
-	subq $464,%rsp
 	movq %rbp,%rsp
 	popq %rbp
 	ret
