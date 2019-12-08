@@ -1,4 +1,3 @@
-
 //These are the R-instructions implemented by the simulted MIPS processor
 #include "cpu.h"
 #define MASK6 		0x3F
