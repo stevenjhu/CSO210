@@ -3,7 +3,7 @@
 
 //J instruction:  opcode (6 bits)      address (26 bits)
 #include "cpu.h"
-#define ADDRESS(x) 	x&0x3FFFFFF
+#define ADDRESS(x) 	(x&0x3FFFFFF)
 #define MASK4		0xF0000000
 void j(unsigned int instruction){
 	unsigned int addr = ADDRESS(instruction);

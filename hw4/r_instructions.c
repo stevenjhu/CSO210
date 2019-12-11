@@ -3,12 +3,12 @@
 #define MASK6 		0x3F
 #define MASK5		0x1F
 #define MASK32		0xFFFFFFFF
-#define OPCODE(x) 	(x>>26)&0x0
-#define RS(x) 		(x>>21)&MASK5
-#define RT(x) 		(x>>16)&MASK5
-#define RD(x) 		(x>>11)&MASK5
-#define SHAMT(x) 	(x>>6)&MASK5
-#define FUNCT(x) 	x&MASK6
+#define OPCODE(x) 	((x>>26)&0x0)
+#define RS(x) 		((x>>21)&MASK5)
+#define RT(x) 		((x>>16)&MASK5)
+#define RD(x) 		((x>>11)&MASK5)
+#define SHAMT(x) 	((x>>6)&MASK5)
+#define FUNCT(x) 	(x&MASK6)
 
 
 void add(unsigned int instruction){
@@ -79,10 +79,11 @@ void srl(unsigned int instruction){
 
 void sra(unsigned int instruction){
 	unsigned int shift = SHAMT(instruction);
-	registers[RD(instruction)] = registers[RT(instruction)] >> shift;
 	unsigned int test = (registers[RT(instruction)]>>31)&0x1;
 	if (test != 0x0){
-		registers[RD(instruction)]=registers[RD(instruction)]&(((1<<shift)-1)<<(32-shift));
+		registers[RD(instruction)]=(registers[RD(instruction)]>>shift)|(((1<<shift)-1)<<(32-shift));
+	}else{
+		registers[RD(instruction)] = registers[RT(instruction)] >> shift;
 	}
 } 
 
@@ -92,10 +93,11 @@ void srlv(unsigned int instruction){
 
 void srav(unsigned int instruction){
 	unsigned int shift = registers[RT(instruction)];
-	registers[RD(instruction)] = registers[RS(instruction)] >> shift;
 	unsigned int test = (registers[RS(instruction)]>>31)&0x1;
 	if (test != 0x0){
-		registers[RD(instruction)]=registers[RD(instruction)]&(((1<<shift)-1)<<(32-shift));
+		registers[RD(instruction)]=(registers[RS(instruction)]>>shift)|(((1<<shift)-1)<<(32-shift));
+	}else{
+		registers[RD(instruction)] = registers[RS(instruction)] >> shift;
 	}
 }
 
